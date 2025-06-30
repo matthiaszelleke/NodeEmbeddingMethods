@@ -42,7 +42,7 @@ final_emb = torch.cat([embeddings_ord1,
 final_emb_np = final_emb.cpu().numpy()
 
 # Instantiate a KMeans model
-kmeans = KMeans(n_clusters=NUM_CLUSTERS, random_state=100)
+kmeans = KMeans(n_clusters=NUM_CLUSTERS, n_init="auto", random_state=100)
 
 # Fitting a KMeans model and getting the predicted labels (clusters) for each node
 clusters = kmeans.fit_predict(final_emb_np)
@@ -58,7 +58,7 @@ pca_embeddings = pca_model.fit_transform(final_emb_np)
 
 # Plot PCA of node embeddings
 current_dir = os.path.dirname(os.path.abspath(__file__))
-output_path = os.path.join(current_dir, "..", "..", "LINE_pca.png")
+output_path = os.path.join(current_dir, "..", "LINE_pca.png")
 
 plt.scatter(x=pca_embeddings[:, 0], y=pca_embeddings[:, 1])
 plt.savefig(output_path)

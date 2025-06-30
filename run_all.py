@@ -38,14 +38,14 @@ with open(FILENAME, "w", newline="") as csvfile:
 
     # Learning the node embeddings using LINE method
     print("Running LINE...") 
-    line_subprocess = subprocess.Popen(["python", "LINEImplementation/MyImplementation/train.py", "-g", 
-                      "./sbm_graph.edgelist", "-save", "LINEImplementation/MyImplementation/LINE_model.pt", 
-                      "-lossdata", "LINEImplementation/MyImplementation/loss_data.pkl", 
+    line_subprocess = subprocess.Popen(["python", "LINEImplementation/train.py", "-g", 
+                      "./sbm_graph.edgelist", "-save", "LINEImplementation/LINE_model.pt", 
+                      "-lossdata", "LINEImplementation/loss_data.pkl", 
                       "-epochs", "10", "-batchsize", "512", "-dim", "64"])
     line_subprocess.wait()
     
     # Running kmeans on the embeddings and extracting the NMI score
-    result_line = subprocess.run(["python", "LINEImplementation/MyImplementation/kmeans.py"], 
+    result_line = subprocess.run(["python", "LINEImplementation/kmeans.py"], 
                                  capture_output=True, text=True, check=True)
     output_line = result_line.stdout.strip()
     nmi_line = output_line.split("NMI Score:")[-1].strip() # obtaining last chunk of text (hopefully the float representing the NMI)
@@ -55,12 +55,12 @@ with open(FILENAME, "w", newline="") as csvfile:
 
     # Learning the node embeddings using GraRep method
     print("Running GraRep...")
-    grarep_subprocess = subprocess.Popen(["python", "GraRepImplementation/MyImplementation/main.py", "-g", "./sbm_graph.edgelist", 
+    grarep_subprocess = subprocess.Popen(["python", "GraRepImplementation/main.py", "-g", "./sbm_graph.edgelist", 
                       "-order", "6", "-dim", "21", "-iters", "20"])
     grarep_subprocess.wait()
     
     # Running kmeans on the embeddings and extracting the NMI score
-    result_grarep = subprocess.run(["python", "GraRepImplementation/MyImplementation/kmeans.py"], 
+    result_grarep = subprocess.run(["python", "GraRepImplementation/kmeans.py"], 
                                    capture_output=True, text=True, check=True)
     output_grarep = result_grarep.stdout.strip()
     nmi_grarep = output_grarep.split("NMI Score:")[-1].strip() # obtaining last chunk of text (hopefully the float representing the NMI)
