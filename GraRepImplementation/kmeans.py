@@ -38,7 +38,7 @@ plt.savefig(output_path)
 
 ## Comparing KMeans classification with actual clusters
 
-# Reading in the list of actual cluster labels (to compare the actual and predicted clusters)
+# Reading in the list of actual cluster labels
 with open("sbm_actual_labels.pkl", "rb") as f:
     sbm_data = pickle.load(f)
 node_blocks = sbm_data["Block/Cluster"]
