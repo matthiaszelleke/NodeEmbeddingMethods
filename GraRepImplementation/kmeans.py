@@ -31,7 +31,7 @@ pca_embeddings = pca_model.fit_transform(embeddings)
 
 # Plotting the PCA node embeddings
 current_dir = os.path.dirname(os.path.abspath(__file__))
-output_path = os.path.join(current_dir, "..", "..", "grarep_pca.png")
+output_path = os.path.join(current_dir, "..", "grarep_pca.png")
 
 plt.scatter(x=pca_embeddings[:, 0], y=pca_embeddings[:, 1])
 plt.savefig(output_path)
