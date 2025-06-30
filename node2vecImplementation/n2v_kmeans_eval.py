@@ -31,19 +31,19 @@ pca_model = make_pipeline(
 # Obtaining the 2D node embeddings
 pca_embeddings = pca_model.fit_transform(embeddings)
 
-# Plot PCA of node embeddings
 current_dir = os.path.dirname(os.path.abspath(__file__))
 output_path = os.path.join(current_dir, "..", "n2v_pca.png")
 
+# Plot PCA of node embeddings
 plt.scatter(x=pca_embeddings[:, 0], y=pca_embeddings[:, 1])
 plt.savefig(output_path)
+
+## Comparing KMeans classification with actual clusters
 
 # Reading in the list of actual cluster labels (to compare the actual and predicted clusters)
 with open("sbm_actual_labels.pkl", "rb") as f:
     sbm_data = pickle.load(f)
 node_blocks = sbm_data["Block/Cluster"]
-
-## Evaluating the performance of KMeans clustering
 
 # Computing the normalized mutual info score (0 = no correlation, 1 = perfect correlation)
 nmi_score = normalized_mutual_info_score(node_blocks, clusters)

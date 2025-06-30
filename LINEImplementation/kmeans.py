@@ -1,7 +1,6 @@
 import os
 import torch
 from config import args
-from utils.utils import VoseAlias
 from utils.line import LINE
 from train import args
 from sklearn.cluster import KMeans
@@ -10,7 +9,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import normalized_mutual_info_score
 import matplotlib.pyplot as plt
-from matplotlib import colors
 import pickle
 
 MODEL_FILENAME = "LINE_model.pt"
@@ -20,22 +18,28 @@ ANNOTATION_OFFSET = 0.04
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+# Instantiating empty LINE models
 line_ord1 = LINE(NUM_NODES, embed_dim=args.dimension).to(device)
 line_ord2 = LINE(NUM_NODES, embed_dim=args.dimension).to(device)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
+# Obtaining the filepath to the stored LINE models
 model_path_ord1 = os.path.join(script_dir, f"{MODEL_FILENAME.split('.')[0]}_ord1.pt")
 model_path_ord2 = os.path.join(script_dir, f"{MODEL_FILENAME.split('.')[0]}_ord2.pt")
+
+# Loading the LINE models
 line_ord1.load_state_dict(torch.load(model_path_ord1))
 line_ord2.load_state_dict(torch.load(model_path_ord2))
 
 line_ord1.eval()
 line_ord2.eval()
 
+# Extracting the node embeddings and context-node embeddings
 embeddings_ord1 = line_ord1.node_embeddings.weight.data
 embeddings_ord2 = line_ord2.contextnode_embeddings.weight.data
 
+# Concatenating the embeddings
 final_emb = torch.cat([embeddings_ord1,
                        embeddings_ord2], dim=1)
 

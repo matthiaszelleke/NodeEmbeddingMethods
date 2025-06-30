@@ -18,7 +18,7 @@ with open(FILENAME, "w", newline="") as csvfile:
     result_spectral = subprocess.run(["python", "SpectralClusteringImplementation/laplacian_eigenmap.py"], 
                                      capture_output=True, text=True, check=True)
     output_spectral = result_spectral.stdout.strip()
-    nmi_spectral = output_spectral.split("NMI Score:")[-1].strip() # obtaining last chunk of text (hopefully the float representing the NMI)
+    nmi_spectral = output_spectral.split("NMI Score:")[-1].strip() # obtaining the NMI score
 
     writer.writerow(["Spectral Clustering", nmi_spectral])
 
@@ -31,8 +31,7 @@ with open(FILENAME, "w", newline="") as csvfile:
     result_n2v = subprocess.run(["python", "node2vecImplementation/n2v_kmeans_eval.py"], 
                                 capture_output=True, text=True, check=True)
     output_n2v = result_n2v.stdout.strip()
-    nmi_n2v = output_n2v.split("NMI Score:")[-1].strip() # obtaining last chunk of text (hopefully the float representing the NMI)
-
+    nmi_n2v = output_n2v.split("NMI Score:")[-1].strip() # obtaining the NMI score
     writer.writerow(["Node2vec", nmi_n2v])
 
 
@@ -48,7 +47,7 @@ with open(FILENAME, "w", newline="") as csvfile:
     result_line = subprocess.run(["python", "LINEImplementation/kmeans.py"], 
                                  capture_output=True, text=True, check=True)
     output_line = result_line.stdout.strip()
-    nmi_line = output_line.split("NMI Score:")[-1].strip() # obtaining last chunk of text (hopefully the float representing the NMI)
+    nmi_line = output_line.split("NMI Score:")[-1].strip() # obtaining the NMI score
 
     writer.writerow(["LINE", nmi_line])
 
@@ -63,7 +62,7 @@ with open(FILENAME, "w", newline="") as csvfile:
     result_grarep = subprocess.run(["python", "GraRepImplementation/kmeans.py"], 
                                    capture_output=True, text=True, check=True)
     output_grarep = result_grarep.stdout.strip()
-    nmi_grarep = output_grarep.split("NMI Score:")[-1].strip() # obtaining last chunk of text (hopefully the float representing the NMI)
+    nmi_grarep = output_grarep.split("NMI Score:")[-1].strip() # obtaining the NMI score
 
     writer.writerow(["GraRep", nmi_grarep])
 

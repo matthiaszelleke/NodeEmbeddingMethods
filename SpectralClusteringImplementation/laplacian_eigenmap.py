@@ -42,6 +42,10 @@ embeddings = k_smallest_eigv
 # Saving embeddings in a txt file
 np.savetxt(EMBEDDING_FILENAME, embeddings, delimiter=',', fmt='%.6f')
 
+# Obtaining the predicted clusters using KMeans
+kmeans = KMeans(n_clusters=NUM_CLUSTERS, random_state=100)
+pred_clusters = kmeans.fit_predict(embeddings)
+
 # Obtaining the 2D node embeddings
 pca_model = make_pipeline(
     StandardScaler(),
@@ -49,17 +53,14 @@ pca_model = make_pipeline(
 )
 pca_embeddings = pca_model.fit_transform(embeddings)
 
-# Plot PCA of node embeddings in 2D
 current_dir = os.path.dirname(os.path.abspath(__file__))
 output_path = os.path.join(current_dir, "..", "spectral_clustering_pca.png")
 
+# Plot PCA of node embeddings in 2D
 plt.scatter(x=pca_embeddings[:, 0], y=pca_embeddings[:, 1])
 plt.savefig(output_path)
 
-## Obtaining Predicted Clusters using KMeans
-
-kmeans = KMeans(n_clusters=NUM_CLUSTERS, random_state=100)
-pred_clusters = kmeans.fit_predict(embeddings)
+## Comparing KMeans classification with actual clusters
 
 # Computing the normalized mutual info score (0 = no correlation, 1 = perfect correlation)
 # A score of over 0.5 is good, means about 88% of nodes were correctly clustered
