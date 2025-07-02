@@ -57,7 +57,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 output_path = os.path.join(current_dir, "..", "spectral_clustering_pca.png")
 
 # Plot PCA of node embeddings in 2D
-plt.scatter(x=pca_embeddings[:, 0], y=pca_embeddings[:, 1])
+plt.scatter(x=pca_embeddings[:, 0], y=pca_embeddings[:, 1], c=node_blocks)
 plt.savefig(output_path)
 
 ## Comparing KMeans classification with actual clusters
