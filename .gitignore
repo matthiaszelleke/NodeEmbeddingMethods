@@ -4,7 +4,8 @@
 # Python cache
 __pycache__/
 *.py[cod]
-**/__pycache__/
+*.pyc
+
 
 # Virtual environments
 env/
