@@ -1,5 +1,6 @@
 import subprocess
 import csv
+from run_all_config import args
 
 FILENAME = "nmi_scores.csv"
 
@@ -9,7 +10,7 @@ with open(FILENAME, "w", newline="") as csvfile:
 
     # Creating the Stochastic Block Model network
     # The network will be stored in an edgelist file
-    subprocess.run(["python", "sbm_simulator.py"], check=True)
+    subprocess.run(["python", "sbm_simulator.py", "-p", str(args.probability)], check=True)
 
 
     # Learning the SBM's node embeddings using spectral clustering and running kmeans
