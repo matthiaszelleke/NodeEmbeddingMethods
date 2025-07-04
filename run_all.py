@@ -10,7 +10,10 @@ with open(FILENAME, "w", newline="") as csvfile:
 
     # Creating the Stochastic Block Model network
     # The network will be stored in an edgelist file
-    subprocess.run(["python", "sbm_simulator.py", "-p", str(args.probability)], check=True)
+    subprocess.run(["python", "sbm_simulator.py", "-p1", str(args.probability1),
+                                                  "-p2", str(args.probability2),
+                                                  "-p3", str(args.probability3)], 
+                    check=True)
 
 
     # Learning the SBM's node embeddings using spectral clustering and running kmeans

@@ -12,7 +12,10 @@ with open(FILENAME, "w", newline="") as csvfile:
     writer.writerow(["Density", "NMI Score", "Method"])
 
     for within_cluster_prob in within_cluster_probs:
-        result = subprocess.run(["python", "run_all.py", "-p", str(within_cluster_prob)],
+        # Making each of the 3 clusters have the same within-cluster connection probability
+        result = subprocess.run(["python", "run_all.py", "-p1", str(within_cluster_prob),
+                                                         "-p2", str(within_cluster_prob),
+                                                         "-p3", str(within_cluster_prob)],
                                           capture_output=True, text=True, check=True)
         
         last_line = result.stdout.strip().split("\n")[-1]
