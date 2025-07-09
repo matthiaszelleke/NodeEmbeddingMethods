@@ -1,12 +1,9 @@
-## Dependencies
-
-This project uses the [LINE Python package](https://github.com/eliorc/LINE) by Elior Cohen, licensed under the MIT License.
-
-The package is installed via pip and used in this repository as a dependency.
-
 ## Acknowledgements
 
-Thanks to Elior Cohen for developing the [LINE](https://github.com/eliorc/LINE) graph embedding implementation used in this project.
+This project uses the [node2vec Python package](https://github.com/eliorc/node2vec) by Elior Cohen (MIT License), which includes an implementation of the Node2Vec algorithm. The `Node2vecImplementation/train.py` file demonstrates usage of the node2vec package and is based on example scripts by Elior Cohen.
+
+The Node2Vec code in Elior's package is based on the original implementation by [Aditya Grover et al.](https://github.com/aditya-grover/node2vec), also licensed under the MIT License.
+
 
 ## Instructions
 
