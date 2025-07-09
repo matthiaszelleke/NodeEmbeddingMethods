@@ -1,7 +1,12 @@
+## Dependencies
+
+This project uses the [LINE Python package](https://github.com/eliorc/LINE) by Elior Cohen, licensed under the MIT License.
+
+The package is installed via pip and used in this repository as a dependency.
+
 ## Acknowledgements
 
-This project is based on code from [Elior Cohen](https://github.com/eliorc/node2vec?tab=MIT-1-ov-file), originally licensed under the MIT License.  
-Copyright (c) 2018 Elior Cohen.
+Thanks to Elior Cohen for developing the [LINE](https://github.com/eliorc/LINE) graph embedding implementation used in this project.
 
 ## Instructions
 
