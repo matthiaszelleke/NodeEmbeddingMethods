@@ -1,3 +1,8 @@
+# This script is adapted from example usage code in:
+# https://github.com/eliorc/node2vec
+# by Elior Cohen, MIT License
+
+
 from node2vec import Node2Vec
 import pickle
 
