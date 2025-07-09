@@ -4,6 +4,9 @@ This project uses the [node2vec Python package](https://github.com/eliorc/node2v
 
 The Node2Vec code in Elior's package is based on the original implementation by [Aditya Grover et al.](https://github.com/aditya-grover/node2vec), also licensed under the MIT License.
 
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ## Instructions
 
