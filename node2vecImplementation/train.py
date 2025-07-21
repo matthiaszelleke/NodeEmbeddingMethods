@@ -21,4 +21,4 @@ node2vec = Node2Vec(
 model = node2vec.fit(window=10, min_count=1, batch_words=4)
 
 # Save embeddings for later use
-model.wv.save_word2vec_format(EMBEDDING_FILENAME, write_header=False)
+model.wv.save_word2vec_format("Node2vecImplementation/" + EMBEDDING_FILENAME, write_header=False)

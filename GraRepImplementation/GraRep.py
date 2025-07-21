@@ -62,5 +62,5 @@ class GraRep(object):
         # Add node labels to embeddings
         self.embeddings = pd.DataFrame(self.embeddings, index=node_labels)
 
-        with open(self.args.embeddings_file, "w") as fname:
+        with open("GraRepImplementation/" + self.args.embeddings_file, "w") as fname:
             self.embeddings.to_csv(fname, index=True) # Include node labels

@@ -4,6 +4,7 @@ import random
 from scipy.stats import bernoulli
 import matplotlib.pyplot as plt
 import pickle
+from sbm_config import args
 
 ## Simulating an SBM
 
@@ -34,9 +35,9 @@ for node in range(NUM_NODES):
 
 # The matrix defining the probability of a person in position i
 # and a person in position j being friends (having an edge between them)
-connectivity_matrix = np.array([[0.5, 0.1, 0.1],
-                                [0.1, 0.7, 0.1],
-                                [0.1, 0.1, 0.9]
+connectivity_matrix = np.array([[args.probability1, 0.1, 0.1],
+                                [0.1, args.probability2, 0.1],
+                                [0.1, 0.1, args.probability3]
                       ])
 
 # Obtaining the integer representation of each position (to index into connectivity matrix)
