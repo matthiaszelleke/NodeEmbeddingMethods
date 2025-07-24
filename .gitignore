@@ -1,0 +1,21 @@
+# macOS metadata
+*.DS_Store
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyc
+
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
