@@ -9,8 +9,6 @@ import pickle
 import pandas as pd
 
 EMBEDDING_FILENAME = "line_node_embeddings.csv"
-NUM_CLUSTERS = 3
-NUM_NODES = 1000
 
 embeddings = pd.read_csv("LINEImplementation/" + EMBEDDING_FILENAME, header=None)
 
