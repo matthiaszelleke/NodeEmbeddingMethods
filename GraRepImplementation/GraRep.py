@@ -57,7 +57,7 @@ class GraRep(object):
             self.A_hat = self.A @ self.A_hat
 
     def save_embeddings(self):
-        node_labels = np.array([idx for idx in range(1, self.num_nodes + 1)])
+        node_labels = np.array([idx for idx in range(self.num_nodes)])
 
         # Add node labels to embeddings
         self.embeddings = pd.DataFrame(self.embeddings, index=node_labels)

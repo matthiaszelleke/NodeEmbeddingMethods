@@ -1,6 +1,6 @@
 import numpy as np
 import pickle
-from run_all_config import args
+from run_all_config_classification import args
 from sklearn.metrics import classification_report, accuracy_score
 import subprocess
 

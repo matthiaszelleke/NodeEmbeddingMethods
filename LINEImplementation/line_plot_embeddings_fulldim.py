@@ -1,24 +1,39 @@
+
+""" Visualizing the performance of the Logistic Regression model by plotting
+    the test embeddings coloured by their actual class along with 2D contours showing
+    each point in the PCA-reduced 2D space coloured by its predicted class.
+    
+    Note: The predicted classes for each point in the 2D plotting space are 
+          obtained using the same 128-dimensional Logistic Regression model used
+          to predict the node classes. The points in the PCA-reduced 2D space
+          are reprojected to the 128D space using PCA's inverse transform, and
+          then their predicted classes are obtained from the 128-dimensional 
+          Logistic Regression model.
+
+          Thus, the plot produced shows the "proper/accurate" classes for each grid 
+          point, but the resulting class boundaries may look weird due to information
+          loss from projecting them from 128 to 2 dimensions.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pickle
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 
 # Reading in the trained logistic regression model
-with open("Node2vecImplementation/node2vec_labels.pkl", "rb") as labels:
-    n2v_labels = pickle.load(labels)
+with open("LINEImplementation/LINE_labels.pkl", "rb") as labels:
+    line_labels = pickle.load(labels)
 
-n2v_logreg = n2v_labels["Logreg model"]
-X_test = n2v_labels["Test embeddings"]
-y_test = n2v_labels["Actual labels (test)"]
+line_logreg = line_labels["Logreg model"]
+X_test = line_labels["Test embeddings"]
+y_test = line_labels["Actual labels (test)"]
 
-standard_scaler = n2v_logreg.named_steps["scaler"]
+standard_scaler = line_logreg.named_steps["scaler"]
 embeddings = standard_scaler.transform(X_test)
 
 pca_model = PCA(n_components=2)
 pca_embeddings = pca_model.fit_transform(embeddings)
-print(pca_model.explained_variance_ratio_)
 
 # Create a meshgrid for plotting
 x_min, x_max = pca_embeddings[:, 0].min() - 1, pca_embeddings[:, 0].max() + 1
@@ -30,7 +45,7 @@ xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01),
 full_dim_emb = pca_model.inverse_transform(np.c_[xx.ravel(), yy.ravel()])
 
 # Predict class labels for each point in the meshgrid
-meshgrid_labels = n2v_logreg.predict(full_dim_emb)
+meshgrid_labels = line_logreg.predict(full_dim_emb)
 meshgrid_labels = meshgrid_labels.reshape(xx.shape)
 
 # Plot the decision boundaries
@@ -46,6 +61,6 @@ plt.title('Multiclass Logistic Regression Decision Boundaries in 2-dim space')
 
 # Saving the plot in the proper directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
-output_path = os.path.join(current_dir, "n2v_pca.png")
+output_path = os.path.join(current_dir, "line_pca_fulldim.png")
 
 plt.savefig(output_path)

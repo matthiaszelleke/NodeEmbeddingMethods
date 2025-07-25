@@ -1,9 +1,9 @@
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-g", "--graph_path", type=str)
-parser.add_argument("-save", "--save_path", type=str)
-parser.add_argument("-lossdata", "--lossdata_path", type=str)
+parser.add_argument("-g", "--graph_path", type=str, default="sbm_graph.edgelist")
+parser.add_argument("-save", "--save_path", type=str, default="LINEClassificationImplementation/LINE_model.pt")
+parser.add_argument("-lossdata", "--lossdata_path", type=str, default="LINEClassificationImplementation/loss_data.pkl")
 
 # Hyperparams.
 parser.add_argument("-order", "--order", type=int, default=2)

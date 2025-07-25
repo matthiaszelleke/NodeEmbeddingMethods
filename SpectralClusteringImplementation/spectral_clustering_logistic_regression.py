@@ -2,19 +2,16 @@
 ### task using Logistic Regression
 
 import pandas as pd
-from config import args
+import pickle
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
-import pickle
 
-EMBEDDINGS_FILENAME = args.embeddings_file
-NUM_CLUSTERS = 3
-NUM_NODES = 1000
+EMBEDDING_FILENAME = "spectral_clustering_node_embeddings.csv"
 
-embeddings = pd.read_csv("GraRepImplementation/" + EMBEDDINGS_FILENAME, delimiter=",", header=0)
+embeddings = pd.read_csv("SpectralClusteringImplementation/" + EMBEDDING_FILENAME, header=None)
 
 # Instantiate a logistic regression model
 logreg = Pipeline([
@@ -38,6 +35,6 @@ logreg.fit(X_train, y_train)
 y_predict = logreg.predict(X_test)
 
 # Saving the actual and predicted labels for each node
-with open("GraRepImplementation/grarep_labels.pkl", "wb") as f:
+with open("SpectralClusteringImplementation/spectral_clustering_labels.pkl", "wb") as f:
     pickle.dump({"Logreg model": logreg, "Training embeddings": X_train, "Test embeddings": X_test,
                   "Actual labels (training)": y_train, "Actual labels (test)": y_test, "Predicted labels": y_predict}, f)

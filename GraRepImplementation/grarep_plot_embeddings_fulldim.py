@@ -1,9 +1,25 @@
+
+""" Visualizing the performance of the Logistic Regression model by plotting
+    the test embeddings coloured by their actual class along with 2D contours showing
+    each point in the 2D plotting space coloured by its predicted class.
+    
+    Note: The predicted classes for each point in the 2D plotting space are 
+          obtained using the same 126-dimensional Logistic Regression model used
+          to predict the node classes. The points in the PCA-reduced 2D space
+          are reprojected to the 126D space using PCA's inverse transform, and
+          then their predicted classes are obtained from the 126-dimensional 
+          Logistic Regression model.
+
+          Thus, the plot produced shows the "proper/accurate" classes for each grid 
+          point, but the resulting class boundaries may look weird due to information
+          loss from projecting them from 126 to 2 dimensions.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pickle
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 
 # Reading in the trained logistic regression model
 with open("GraRepImplementation/grarep_labels.pkl", "rb") as labels:
@@ -53,6 +69,6 @@ plt.title('Multiclass Logistic Regression Decision Boundaries in 2-dim space')
 
 # Saving the plot in the proper directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
-output_path = os.path.join(current_dir, "grarep_pca.png")
+output_path = os.path.join(current_dir, "grarep_pca_fulldim.png")
 
 plt.savefig(output_path)

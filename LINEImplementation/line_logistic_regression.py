@@ -1,23 +1,18 @@
 ### Evaluating the node embedding's performance on a node classification 
 ### task using Logistic Regression
 
-import os
-import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-import matplotlib.pyplot as plt
 import pickle
+import pandas as pd
 
-EMBEDDING_FILENAME = "n2v_node_embeddings.txt"
+EMBEDDING_FILENAME = "line_node_embeddings.csv"
 NUM_CLUSTERS = 3
 NUM_NODES = 1000
-ANNOTATION_OFFSET = 0.04
 
-# Read in node embeddings
-embeddings = pd.read_csv("Node2vecImplementation/" + EMBEDDING_FILENAME, sep=r'\s+', header=None)
+embeddings = pd.read_csv("LINEImplementation/" + EMBEDDING_FILENAME, header=None)
 
 # Instantiate a logistic regression model
 logreg = Pipeline([
@@ -31,7 +26,7 @@ with open("sbm_actual_labels.pkl", "rb") as f:
 node_labels = sbm_data["Block/Cluster"]
 
 # Doing a train/test split
-X_train, X_test, y_train, y_test = train_test_split(embeddings.values, node_labels,
+X_train, X_test, y_train, y_test = train_test_split(embeddings, node_labels,
                                                     train_size=0.8)
 
 # Fitting the logistic regression model and getting the predicted labels (clusters) for each node
@@ -41,6 +36,6 @@ logreg.fit(X_train, y_train)
 y_predict = logreg.predict(X_test)
 
 # Saving the actual and predicted labels for each node
-with open("Node2vecImplementation/node2vec_labels.pkl", "wb") as f:
+with open("LINEImplementation/line_labels.pkl", "wb") as f:
     pickle.dump({"Logreg model": logreg, "Training embeddings": X_train, "Test embeddings": X_test,
                   "Actual labels (training)": y_train, "Actual labels (test)": y_test, "Predicted labels": y_predict}, f)

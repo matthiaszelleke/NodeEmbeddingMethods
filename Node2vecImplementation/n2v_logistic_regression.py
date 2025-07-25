@@ -1,43 +1,22 @@
 ### Evaluating the node embedding's performance on a node classification 
 ### task using Logistic Regression
 
-import os
-import torch
-from config import args
-from utils.line import LINE
-from train import args
+import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
 import pickle
 
-MODEL_FILENAME = "LINE_model.pt"
+EMBEDDING_FILENAME = "n2v_node_embeddings.txt"
 NUM_CLUSTERS = 3
 NUM_NODES = 1000
+ANNOTATION_OFFSET = 0.04
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-line_ord1 = LINE(NUM_NODES, embed_dim=args.dimension).to(device)
-line_ord2 = LINE(NUM_NODES, embed_dim=args.dimension).to(device)
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-
-model_path_ord1 = os.path.join(script_dir, f"{MODEL_FILENAME.split('.')[0]}_ord1.pt")
-model_path_ord2 = os.path.join(script_dir, f"{MODEL_FILENAME.split('.')[0]}_ord2.pt")
-line_ord1.load_state_dict(torch.load(model_path_ord1))
-line_ord2.load_state_dict(torch.load(model_path_ord2))
-
-line_ord1.eval()
-line_ord2.eval()
-
-embeddings_ord1 = line_ord1.node_embeddings.weight.data
-embeddings_ord2 = line_ord2.contextnode_embeddings.weight.data
-
-final_emb = torch.cat([embeddings_ord1,
-                       embeddings_ord2], dim=1)
-
-final_emb_np = final_emb.cpu().numpy()
+# Read in node embeddings
+embeddings = pd.read_csv("Node2vecImplementation/" + EMBEDDING_FILENAME, sep=r'\s+', header=None)
 
 # Instantiate a logistic regression model
 logreg = Pipeline([
@@ -51,7 +30,7 @@ with open("sbm_actual_labels.pkl", "rb") as f:
 node_labels = sbm_data["Block/Cluster"]
 
 # Doing a train/test split
-X_train, X_test, y_train, y_test = train_test_split(final_emb_np, node_labels,
+X_train, X_test, y_train, y_test = train_test_split(embeddings.values, node_labels,
                                                     train_size=0.8)
 
 # Fitting the logistic regression model and getting the predicted labels (clusters) for each node
@@ -61,6 +40,6 @@ logreg.fit(X_train, y_train)
 y_predict = logreg.predict(X_test)
 
 # Saving the actual and predicted labels for each node
-with open("LINEImplementation/LINE_labels.pkl", "wb") as f:
+with open("Node2vecImplementation/n2v_labels.pkl", "wb") as f:
     pickle.dump({"Logreg model": logreg, "Training embeddings": X_train, "Test embeddings": X_test,
                   "Actual labels (training)": y_train, "Actual labels (test)": y_test, "Predicted labels": y_predict}, f)

@@ -15,7 +15,7 @@ with open(FILENAME, "w", newline="") as csvfile:
 
     for within_class_prob in within_class_probs:
         # Making each of the 3 classes have the same within-class connection probability
-        result = subprocess.run(["python", "run_all.py", "-p1", str(within_class_prob),
+        result = subprocess.run(["python", "run_all_classification.py", "-p1", str(within_class_prob),
                                                          "-p2", str(within_class_prob),
                                                          "-p3", str(within_class_prob)],
                                           capture_output=True, text=True, check=True)
