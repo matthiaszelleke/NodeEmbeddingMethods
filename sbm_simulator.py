@@ -70,7 +70,7 @@ for node_id in G.nodes:
 
 ## Plotting an SBM
 
-# Randomly choose n_nodes of the 1000 nodes to be drawn (1000 is too many to properly see)
+# Randomly choosing only 100 of the nodes to be plotted, so the plot isn't too crowded
 drawn_nodes = random.sample(range(1, NUM_NODES+1), 100)
 drawn_nodes = np.array(drawn_nodes, dtype=np.int32)
 

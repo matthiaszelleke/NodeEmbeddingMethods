@@ -58,8 +58,8 @@ X_test_2D = pca_2D.transform(X_test)
 # Creating a meshgrid for plotting
 x_min, x_max = X_test_2D[:, 0].min() - 1, X_test_2D[:, 0].max() + 1
 y_min, y_max = X_test_2D[:, 1].min() - 1, X_test_2D[:, 1].max() + 1
-xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1),
-                        np.arange(y_min, y_max, 0.1))
+xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01),
+                        np.arange(y_min, y_max, 0.01))
 
 # Predicting class labels for each point in the meshgrid
 meshgrid = np.c_[xx.ravel(), yy.ravel()]
