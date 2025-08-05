@@ -1,10 +1,18 @@
-from config import args
-from grarep import GraRep
-from grarep_utils import read_graph_edgelist
+from .config import args
+from .grarep import GraRep
+import networkx as nx
 
-# Returns the graph's adjacency matrix
-adj_matrix = read_graph_edgelist(args.graph_path)
 
-grarep = GraRep(adj_matrix, args)
-grarep.learn_embeddings()
-grarep.save_embeddings()
+def get_embeddings_grarep(network, order=6, dimensions=21, embeddings_filename="grarep_node_embeddings.csv"):
+
+    adj_matrix = nx.adjacency_matrix(network).toarray()
+
+    grarep = GraRep(adj_matrix, order, dimensions, embeddings_filename)
+    embeddings = grarep.learn_embeddings()
+    grarep.save_embeddings()
+
+    return embeddings
+
+if __name__ == "__main__":
+    network = nx.read_edgelist(args.network)
+    get_embeddings_grarep(network, args.order, args.dim, args.emb_fnmae)

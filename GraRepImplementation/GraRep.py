@@ -4,10 +4,13 @@ from scipy.linalg import svd, sqrtm
 from tqdm import tqdm
 
 class GraRep(object):
-    def __init__(self, A, args):
+    def __init__(self, A, order, dimensions, embeddings_filename):
         self.A = np.array(A, dtype="float32")
         self.num_nodes = self.A.shape[0]
-        self.args = args
+        self.order = order
+        self.dimensions = dimensions
+        self.embeddings_filename = embeddings_filename
+
         self.normalize()
 
     def normalize(self):
@@ -21,10 +24,10 @@ class GraRep(object):
                                          where = row_sums[:, np.newaxis]!=0))
 
     def learn_embeddings(self):
-        self.embeddings = np.zeros(shape=(self.num_nodes, self.args.dimension*self.args.order))
+        self.embeddings = np.zeros(shape=(self.num_nodes, self.dimensions*self.order))
 
         # Learning the embeddings for each value of k (step)
-        for step in tqdm(range(1, self.args.order + 1)):
+        for step in tqdm(range(1, self.order + 1)):
 
             # Represents how likely a node is to appear in a random walk in general
             surprise_factor = self.A_hat.sum(axis=0)
@@ -43,18 +46,20 @@ class GraRep(object):
             self.U, self.Sigma, _ = svd(self.log_trans_matrix)
 
             # Using only the top r components, as specified by the dimension param
-            self.U = self.U[:, :self.args.dimension]
-            self.Sigma = self.Sigma[:self.args.dimension]
+            self.U = self.U[:, :self.dimensions]
+            self.Sigma = self.Sigma[:self.dimensions]
 
             # Obtain the row embeddings using the left singular vectors (U)
             # that's why the V^T matrix isn't needed (it would give column embeddings)
             embeddings = self.U @ sqrtm(np.diag(self.Sigma))
 
             # Append obtained embeddings for this k (step)
-            self.embeddings[:, (step-1)*self.args.dimension:step*self.args.dimension] = embeddings
+            self.embeddings[:, (step-1)*self.dimensions:step*self.dimensions] = embeddings
 
             # Compute next power of transition matrix
             self.A_hat = self.A @ self.A_hat
+
+        return self.embeddings
 
     def save_embeddings(self):
         node_labels = np.array([idx for idx in range(self.num_nodes)])
@@ -62,5 +67,5 @@ class GraRep(object):
         # Add node labels to embeddings
         self.embeddings = pd.DataFrame(self.embeddings, index=node_labels)
 
-        with open("GraRepImplementation/" + self.args.embeddings_file, "w") as fname:
+        with open("GraRepImplementation/" + self.embeddings_filename, "w") as fname:
             self.embeddings.to_csv(fname, index=True) # Include node labels

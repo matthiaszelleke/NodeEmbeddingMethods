@@ -73,7 +73,7 @@ class VoseAlias(object):
         for i in range(size):
             yield self.alias_generation()
 
-def makeDist(graphpath, power=0.75):
+def makeDist(network, power=0.75):
     '''Making the node and edge probability distributions,
         each of which are either scaled versions or functions
         of the degree distribution and weights distrubtion,
@@ -88,8 +88,22 @@ def makeDist(graphpath, power=0.75):
     weightsum = 0
     negprobsum = 0
 
-    nlines = 0
+    edges = network.edges.data("weight", default=1)
+    for edge in edges:
+        node1, node2, weight = edge[0], edge[1], edge[2]
 
+        edgedistdict[tuple([node1, node2])] = weight # store weight for this edge
+        nodedistdict[node1] += weight # update the outdegree of node1
+
+        weightsdict[tuple([node1, node2])] = weight # store weight for this edge
+        nodedegrees[node1] += weight # update the outdegree of node1
+
+        weightsum += weight
+
+        # negprobsum will be used to modify the node distribution
+        negprobsum += np.power(weight, power)
+
+    """
     with open(graphpath, "r") as graphfile:
         for l in graphfile:
             nlines += 1
@@ -118,6 +132,7 @@ def makeDist(graphpath, power=0.75):
             elif node2 > maxindex:
                 maxindex = node2
 
+    """
     for node, outdegree in nodedistdict.items():
         # in addition to scaling the degree, we raise each node to a power < 1
         # to prevent nodes with high outdegrees from being sampled too often
@@ -127,7 +142,7 @@ def makeDist(graphpath, power=0.75):
         # scale edge weight to represent a probability in a prob. distribution
         edgedistdict[edge] = weight / weightsum
 
-    return edgedistdict, nodedistdict, maxindex
+    return edgedistdict, nodedistdict
 
 def negSampleBatch(sourcenode, targetnode, negsamplesize, nodealiassampler):
     '''Sample negative nodes for a given pair of 

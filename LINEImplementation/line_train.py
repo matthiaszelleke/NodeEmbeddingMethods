@@ -1,49 +1,49 @@
-from config import args
+from .config import args
+import networkx as nx
 import numpy as np
-from utils.utils import VoseAlias
-from utils.utils import makeDist, makeData
-from utils.line import LINE
-from tqdm import trange
+import pickle
 import torch
 import torch.optim as optim
-import sys
-import pickle
+from tqdm import trange
+from .utils.line import LINE
+from .utils.utils import VoseAlias
+from .utils.utils import makeDist, makeData
 
-EMBEDDING_FILENAME = "line_node_embeddings.csv"
 
-def setup(args):
-    edgedistdict, nodedistdict, maxindex = makeDist(args.graph_path, args.negativepower)
+def setup(network, batch_size, negative_power):
+    edgedistdict, nodedistdict = makeDist(network, negative_power)
 
     edgealiassampler = VoseAlias(edgedistdict)
     nodealiassampler = VoseAlias(nodedistdict)
 
-    batchrange = int(len(edgedistdict) / args.batchsize)
-    print(f"Number of nodes: {maxindex}")
+    batchrange = int(len(edgedistdict) / batch_size)
+    print(f"Number of nodes: {network.number_of_nodes()}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    return maxindex, batchrange, edgealiassampler, nodealiassampler, device
+    return batchrange, edgealiassampler, nodealiassampler, device
 
-def setupMethods(args, n_nodes, device):
-    line_ord1 = LINE(n_nodes, embed_dim=args.dimension).to(device)
-    line_ord2 = LINE(n_nodes, embed_dim=args.dimension).to(device)
-    opt_ord1 = optim.Adam(line_ord1.parameters(), lr=args.learning_rate)
-    opt_ord2 = optim.Adam(line_ord2.parameters(), lr=args.learning_rate)
+def setupMethods(network, dimensions, learning_rate, device):
+    line_ord1 = LINE(network.number_of_nodes(), embed_dim=dimensions).to(device)
+    line_ord2 = LINE(network.number_of_nodes(), embed_dim=dimensions).to(device)
+
+    opt_ord1 = optim.Adam(line_ord1.parameters(), lr=learning_rate)
+    opt_ord2 = optim.Adam(line_ord2.parameters(), lr=learning_rate)
 
     return line_ord1, line_ord2, opt_ord1, opt_ord2
 
-def train(args, edgealiassampler, nodealiassampler, batchrange, 
-          line_ord1, line_ord2, opt_ord1, opt_ord2, device):
+def train(epochs, batch_size, size_of_negative_sample, edgealiassampler, nodealiassampler, 
+          batchrange, line_ord1, line_ord2, opt_ord1, opt_ord2, device):
     lossdata = {"iter": [], "loss_ord1": [], "loss_ord2": []}
     iter = 0
 
     print(f"\nTraining on {device}...\n")
 
-    for epoch in range(args.epochs):
+    for epoch in range(epochs):
         print(f"Epoch {epoch}")
         for b in trange(batchrange):
-            samplededges = edgealiassampler.sample_n(args.batchsize)
-            batch = list(makeData(samplededges, args.negsamplesize, nodealiassampler))
+            samplededges = edgealiassampler.sample_n(batch_size)
+            batch = list(makeData(samplededges, size_of_negative_sample, nodealiassampler))
             batch = torch.tensor(batch, dtype=torch.long).to(device)
 
             v_i = batch[:, 0] - 1
@@ -67,14 +67,15 @@ def train(args, edgealiassampler, nodealiassampler, batchrange,
 
     return line_ord1, line_ord2, opt_ord1, opt_ord2, lossdata
 
-def save(args, line_ord1, line_ord2, lossdata):
+def save(model_save_path, loss_data_path, line_ord1, line_ord2, lossdata, 
+         embeddings_filename):
     print(f"\nDone training, saving models")
 
-    torch.save(line_ord1.state_dict(), f"{args.save_path.split('.')[0]}_ord1.pt")
-    torch.save(line_ord2.state_dict(), f"{args.save_path.split('.')[0]}_ord2.pt")
+    torch.save(line_ord1.state_dict(), f"{model_save_path.split('.')[0]}_ord1.pt")
+    torch.save(line_ord2.state_dict(), f"{model_save_path.split('.')[0]}_ord2.pt")
 
-    print(f"Saving loss data at {args.lossdata_path}")
-    with open(args.lossdata_path, "wb") as ldatafile:
+    print(f"Saving loss data at {loss_data_path}")
+    with open(loss_data_path, "wb") as ldatafile:
         pickle.dump(lossdata, ldatafile)
 
     embeddings_ord1 = line_ord1.node_embeddings.weight.data
@@ -84,15 +85,30 @@ def save(args, line_ord1, line_ord2, lossdata):
                         embeddings_ord2], dim=1)
     final_emb_np = final_emb.cpu().numpy()
 
-    print(f"Saving embeddings at LINEImplementation/{EMBEDDING_FILENAME}")
-    np.savetxt("LINEImplementation/" + EMBEDDING_FILENAME, final_emb_np, delimiter=",", fmt='%.6f')
+    print(f"Saving embeddings at LINEImplementation/{embeddings_filename}")
+    np.savetxt("LINEImplementation/"+embeddings_filename, final_emb_np, delimiter=",", fmt='%.6f')
 
-    sys.exit()
+    return final_emb_np
 
+def get_embeddings_line(network, epochs=10, batch_size=64, learning_rate=0.025,
+                        size_of_negative_sample=5, embeddings_filename="line_node_embeddings.csv",
+                        dimensions=16, negative_power=0.75, 
+                        model_save_path="LINEImplementation/LINE_model.pt",
+                        loss_data_path="LINEImplementation/loss_data.pkl"):
+    
+    batchrange, edgealiassampler, nodealiassampler, device = setup(network, batch_size, negative_power)
+    line_ord1, line_ord2, opt_ord1, opt_ord2 = setupMethods(network, dimensions, learning_rate, device)
+    line_ord1, line_ord2, opt_ord1, opt_ord2, lossdata = train(epochs, batch_size, size_of_negative_sample, edgealiassampler, nodealiassampler, 
+                                                               batchrange, line_ord1, line_ord2, opt_ord1, opt_ord2, device)
+    embeddings = save(model_save_path, loss_data_path, line_ord1, line_ord2, lossdata, embeddings_filename)
+
+    return embeddings
 
 if __name__ == "__main__":
-    maxindex, batchrange, edgealiassampler, nodealiassampler, device = setup(args)
-    line_ord1, line_ord2, opt_ord1, opt_ord2 = setupMethods(args, maxindex, device)
-    line_ord1, line_ord2, opt_ord1, opt_ord2, lossdata = train(args, edgealiassampler, nodealiassampler, 
-                                                            batchrange, line_ord1, line_ord2, opt_ord1, opt_ord2, device)
-    save(args, line_ord1, line_ord2, lossdata)
+    network = nx.read_edgelist(args.network)
+
+    get_embeddings_line(network, epochs=args.epochs, batch_size=args.batch_size,
+                        learning_rate=args.lr, size_of_negative_sample=args.neg_sample_size,
+                        embeddings_filename=args.emb_fname, dimensions=args.dim, 
+                        negative_power=args.neg_pow, model_save_path=args.save_path,
+                        loss_data_path=args.loss_data_path)
