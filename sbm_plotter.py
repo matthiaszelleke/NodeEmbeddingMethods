@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import random
+from sbm_config import args
 from utils import get_node_clusters, get_num_clusters
 
 
@@ -44,7 +45,7 @@ def plot_network(network):
         drawn_nodes = random.sample(range(1, num_nodes+1), 100)
         drawn_nodes = np.array(drawn_nodes, dtype=np.int32)
     else:
-        drawn_nodes = np.arange(1, 101)
+        drawn_nodes = np.arange(1, num_nodes+1)
 
     # The subgraph of the original graph induced by the chosen nodes
     drawn_G = nx.induced_subgraph(network, drawn_nodes)
@@ -81,3 +82,7 @@ def plot_network(network):
 
     plt.title("Network: nodes coloured by cluster")
     plt.savefig("network.png", dpi=300)
+
+if __name__ == "__main__":
+    network = nx.read_edgelist(args.network_fname)
+    plot_network(network)

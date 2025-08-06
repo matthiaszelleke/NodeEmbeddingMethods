@@ -1,3 +1,5 @@
+from sklearn.preprocessing import LabelEncoder
+
 ### Helper functions used in various files 
 
 class InvalidNetworkStructure(Exception):
@@ -18,3 +20,8 @@ def get_node_clusters(network):
     
 def get_num_clusters(node_clusters):
     return len(set(node_clusters))
+
+def to_int(labels):
+    encoder = LabelEncoder()
+    encoded_labels = encoder.fit_transform(labels)
+    return encoded_labels

@@ -6,7 +6,7 @@ from scipy.stats import bernoulli
 import pickle
 
 
-def generate_sbm_network(num_nodes, p1, p2, p3):
+def generate_sbm_network(num_nodes, p1, p2, p3, network_save_fname="sbm_graph.edgelist"):
 
     ## Simulating an SBM
 
@@ -61,14 +61,14 @@ def generate_sbm_network(num_nodes, p1, p2, p3):
         pickle.dump({"Block/Cluster": node_cluster}, f)
 
     # Saving the graph
-    nx.write_edgelist(G, "sbm_graph.edgelist", data=False)
+    nx.write_edgelist(G, network_save_fname, data=False)
 
     # Specifying the edge-weight to be 1 for every edge
-    with open("sbm_graph.edgelist", "w") as f:
+    with open(network_save_fname, "w") as f:
         for u, v in G.edges():
             f.write(f"{u} {v} 1\n")
     
     return G
 
 if __name__ == "__main__":
-    generate_sbm_network(args.num_nodes, args.p1, args.p2, args.p3)
+    generate_sbm_network(args.num_nodes, args.p1, args.p2, args.p3, args.network_fname)

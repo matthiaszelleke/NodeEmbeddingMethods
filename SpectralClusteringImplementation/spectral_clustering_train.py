@@ -20,8 +20,8 @@ def get_embeddings_spectral_clustering(network, embeddings_filename="spectral_cl
     # Above function returns a scipy spare matrix, converting to a numpy array to make sure entries are stored as ints
     lap_matrix = lil_matrix(lap_matrix).toarray()
 
-    # Obtaining the eigenvalues and eigenvectors of the laplacian 
-    _, eigenvectors = eigh(lap_matrix) # eigh() returns eigenvals in asc order
+    # Obtaining the eigenvectors of the laplacian 
+    _, eigenvectors = eigh(lap_matrix)
 
     # extracting the k smallest (excluding the smallest) eigenvectors
     k_smallest_eigv = eigenvectors[:, 1:K+1]
