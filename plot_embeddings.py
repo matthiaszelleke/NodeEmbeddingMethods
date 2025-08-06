@@ -22,6 +22,7 @@ from plot_embeddings_config import args
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
+from utils import to_int
 
 
 def load_model_and_labels(filename):
