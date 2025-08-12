@@ -67,10 +67,12 @@ def save(model, embeddings, model_save_path, embeddings_filename):
     return embeddings
 
 def get_embeddings_graphsage(network, num_epochs, K, neigh_sizes, embed_dim=32, num_learnable_features=None, 
+                             lr=0.001, num_walks=10, walk_length=80, window_size=5, neg_sample_size=5,
                              embeddings_filename="graphsage_node_embeddings.csv", 
                              model_save_path="GraphSageImplementation/GraphSage_model.pt"):
     
-    graph_sage, opt, device = setup(network, K, neigh_sizes, embed_dim, num_learnable_features)
+    graph_sage, opt, device = setup(network, K, neigh_sizes, embed_dim, num_learnable_features,
+                                    lr, num_walks, walk_length, window_size, neg_sample_size)
     
     graph_sage = train(graph_sage, opt, num_epochs, device)
     
@@ -80,4 +82,6 @@ def get_embeddings_graphsage(network, num_epochs, K, neigh_sizes, embed_dim=32, 
 
 if __name__ == "__main__":
     network = nx.read_edgelist(args.network)
-    get_embeddings_graphsage(network, args.num_epochs, args.model_save_path, args.emb_fname)
+    get_embeddings_graphsage(network, args.num_epochs, args.K, args.neigh_sizes, args.dim, 
+                             args.num_learn_feat, args.lr, args.num_walks, args.walk_length, 
+                             args.window_size, args.Q, args.emb_fname, args.model_save_path)

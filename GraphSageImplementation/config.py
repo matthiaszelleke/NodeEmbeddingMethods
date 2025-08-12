@@ -4,7 +4,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-network", "--network", type=str, default="sbm_graph.edgelist")
 parser.add_argument("-K", "--depth", type=int, help='Number of layers (K)', default=2)
 parser.add_argument("-neigh_sizes", "--neighbourhood-sizes", type=int, nargs='+',
-    help='List of neighbourhood sample sizes per layer, e.g. --neighbourhood-sizes 10 5 5',
+    help='List of neighbourhood sample sizes per layer, e.g. --neighbourhood-sizes 10 5',
     default=[10, 5])
 
 parser.add_argument("-dim", "--embed_dim", type=int, default=32)
