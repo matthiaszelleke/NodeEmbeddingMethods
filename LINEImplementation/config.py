@@ -10,6 +10,6 @@ parser.add_argument("-batch_size", "--batch_size", type=int, default=64)
 parser.add_argument("-epochs", "--epochs", type=int, default=10)
 parser.add_argument("-lr", "--learning_rate", type=float, default=0.025)  # As starting value in paper
 parser.add_argument("-neg_pow", "--negative_power", type=float, default=0.75)
-parser.add_argument("-emb_fname", "--embedding_filename", type=float, default=0.75)
+parser.add_argument("-emb_fname", "--embedding_filename", type=str, default="line_node_embeddings.csv")
 
 args, _ = parser.parse_known_args()

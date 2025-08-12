@@ -150,7 +150,8 @@ def negSampleBatch(sourcenode, targetnode, negsamplesize, nodealiassampler):
     negsamples = 0
     while negsamples < negsamplesize:
         # nodealiassampler is an object which does the Vose Alias sampling
-        sampled_node = nodealiassampler.sample_n(1)
+        sampled_nodes = nodealiassampler.sample_n(1)
+        sampled_node = next(iter(sampled_nodes))
         if (sampled_node == sourcenode) or (sampled_node == targetnode):
             continue
         else:
@@ -161,10 +162,7 @@ def makeData(samplededges, negsamplesize, nodesaliassampler):
     '''Essentially a wrapper to negSampleBatch'''
     for e in samplededges:
         sourcenode, targetnode = e[0], e[1]
-        negnodes = []
-        for negsample in negSampleBatch(sourcenode, targetnode, negsamplesize,
-                                        nodesaliassampler):
-            for node in negsample:
-                negnodes.append(node)
+        negnodes = list(negSampleBatch(sourcenode, targetnode, negsamplesize,
+                                        nodesaliassampler))
         yield [e[0], e[1]] + negnodes
                                     
