@@ -1,3 +1,9 @@
+# Adapted from: https://github.com/dmpierre/LINE
+# Copyright (c) 2025 Pierre Daix-Moreux
+# Licensed under the MIT License (see LICENSE or LICENSE-pierre in this repository)
+# Implements the LINE algorithm from:
+# Tang et al. (2015). "LINE: Large-scale Information Network Embedding"
+
 from .config import args
 import networkx as nx
 import numpy as np
@@ -40,8 +46,7 @@ def train(epochs, batch_size, size_of_negative_sample, edgealiassampler, nodeali
     print(f"\nTraining on {device}...\n")
 
     for epoch in range(epochs):
-        print(f"Epoch {epoch}")
-        for b in trange(batchrange):
+        for b in range(batchrange):
             samplededges = edgealiassampler.sample_n(batch_size)
             batch = list(makeData(samplededges, size_of_negative_sample, nodealiassampler))
             batch = torch.tensor(batch, dtype=torch.long).to(device)
