@@ -1,23 +1,20 @@
-from LINEImplementation.utils.utils import negSampleBatch
-import networkx as nx
 import numpy as np
 import random
 from scipy.sparse import coo_matrix
 import torch
 import torch.nn.functional as F
 
-class UnspecifiedNumberOfFeatures(Exception):
-    """Custom exception to handle the case when the user's
-       network doesn't have node features, and they don't
-       specify the number of learnable features they want
-       for each node"""
-    pass
-
-class UnequalAttributeCounts(Exception):
-    """Custom exception to handle the case when the nodes
-       in a user's network don't all have the same number of
-       attributes"""
-    pass
+def get_batch_size(num_nodes):
+    if num_nodes < 500:
+        return num_nodes       # small graphs — large batches
+    elif num_nodes < 5_000:
+        return 256       # small-medium graphs
+    elif num_nodes < 50_000:
+        return 128       # medium graphs
+    elif num_nodes < 500_000:
+        return 64        # large graphs
+    else:
+        return 32        # very large graphs
 
 def sample_neighbourhood(network, node, size):
     neighbours = list(network.neighbors(node))

@@ -1,3 +1,9 @@
+# Copied from: https://github.com/eliorc/node2vec
+# Copyright (c) 2018 Elior Cohen
+# Licensed under the MIT License (see LICENSE or LICENSE-eliorc in this repository)
+# Implements the Node2Vec algorithm from:
+# Grover, A., & Leskovec, J. (2016). "node2vec: Scalable Feature Learning for Networks"
+
 from .config import args
 import networkx as nx
 from node2vec import Node2Vec

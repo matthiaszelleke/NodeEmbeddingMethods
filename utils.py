@@ -7,6 +7,12 @@ class InvalidNetworkStructure(Exception):
        structure is different from what is expected"""
     pass
 
+class UnequalAttributeCounts(Exception):
+    """Custom exception to handle the case when the nodes
+       in a user's network don't all have the same number of
+       attributes"""
+    pass
+
 def get_node_clusters(network):
     node_clusters = []
 

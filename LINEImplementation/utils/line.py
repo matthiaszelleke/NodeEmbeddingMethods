@@ -1,3 +1,9 @@
+# Adapted from: https://github.com/dmpierre/LINE
+# Copyright (c) 2025 Pierre Daix-Moreux
+# Licensed under the MIT License (see LICENSE or LICENSE-pierre in this repository)
+# Implements the LINE algorithm from:
+# Tang et al. (2015). "LINE: Large-scale Information Network Embedding"
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

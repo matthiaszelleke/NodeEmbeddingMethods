@@ -3,23 +3,27 @@
 
 from LINEImplementation.utils.utils import makeDist, VoseAlias
 import numpy as np
+import os
+import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .utils import sample_neighbourhood, UnspecifiedNumberOfFeatures, UnequalAttributeCounts
+from .utils import sample_neighbourhood
 
-class MaxPoolingAggregator(nn.Module):
-    def __init__(self, dim_in, dim_out):
+grandparent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.append(grandparent_dir)
+from utils import UnequalAttributeCounts
+
+class MeanAggregator(nn.Module):
+    def __init__(self):
         super().__init__()
 
-        self.output_layer = nn.Linear(dim_in, dim_out)
-        self.activation = nn.ReLU()
-
     def forward(self, neighbour_embeddings):
-        neighbour_embeddings = self.output_layer(neighbour_embeddings)
-        neighbour_embeddings = self.activation(neighbour_embeddings)
+        if neighbour_embeddings.size(0) == 0:
+            return torch.zeros(neighbour_embeddings.size(1), device=neighbour_embeddings.device)
+        else:
+            return torch.mean(neighbour_embeddings, dim=0)
 
-        return torch.max(neighbour_embeddings, dim=0).values
 
 class Updater(nn.Module):
     def __init__(self, dim_in, dim_out):
@@ -35,7 +39,7 @@ class Updater(nn.Module):
         return new_embedding
 
 class GraphSage(nn.Module):
-    def __init__(self, network, neighbourhood_sizes, depth=2, embed_dim=32, num_learnable_features=None,
+    def __init__(self, network, neighbourhood_sizes, depth=2, embed_dim=32,
                  num_walks=10, walk_length=80, window_size=5, neg_sample_size=5):
         super(GraphSage, self).__init__()
 
@@ -49,8 +53,9 @@ class GraphSage(nn.Module):
 
         self.node_embeddings = nn.Embedding(self.num_nodes, self.embed_dim)
 
-        self.agg = MaxPoolingAggregator(dim_in=self.embed_dim, dim_out=self.embed_dim)
-        self.upd = Updater(dim_in = 2*self.embed_dim, dim_out = self.embed_dim)
+        self.agg = MeanAggregator()
+        self.upd = nn.ModuleList([Updater(dim_in=2*self.embed_dim, dim_out=self.embed_dim)
+                                    for k in range(1, self.depth+1)])
         
         self.num_walks = num_walks
         self.walk_length = walk_length
@@ -69,10 +74,9 @@ class GraphSage(nn.Module):
         num_features = attribute_counts[0]-1 # -1 because the "label" attribute isn't a node feature
 
         if num_features == 0:
-            if num_learnable_features is None:
-                raise UnspecifiedNumberOfFeatures("Please specify how many learnable features you want each node to have")
-            
-            self.node_features = nn.Embedding(self.num_nodes, num_learnable_features, dtype=torch.float)
+            self.unmapped_features = torch.tensor([d for n, d in self.network.degree()], dtype=torch.float).unsqueeze(1)
+            self.feature_mapper = nn.Linear(1, embed_dim, bias=False)
+        
         else:
             features_np = np.zeros((self.num_nodes, num_features))
             # Iterating over each node's features
@@ -87,8 +91,8 @@ class GraphSage(nn.Module):
                     features_np[node-1, feature_num] = value
                     feature_num += 1
 
-            # Register as a buffer so it's moved to the right device with model.to()
-            self.register_buffer("node_features", torch.tensor(features_np, dtype=torch.float))
+            self.unmapped_features = torch.tensor(features_np, dtype=torch.float)
+            self.feature_mapper = nn.Linear(num_features, embed_dim, bias=False)
 
     def sample_neighbourhoods(self, batch_nodes):
         self.neighbourhoods = [[] for i in range(self.depth+1)] # +1 because there are technically K+1 layers: 0,1,...,K
@@ -107,21 +111,31 @@ class GraphSage(nn.Module):
     def forward(self, batch_nodes, device):
         GraphSage.sample_neighbourhoods(self, batch_nodes)
 
-        embeddings = self.node_features.weight.to(device)
+        node_features = self.feature_mapper(self.unmapped_features)
+        embeddings = node_features.to(device)
+
         for k in range(1, self.depth+1):
             new_embeddings = embeddings.clone()
             for node in self.neighbourhoods[k]:
                 current_neighbours = np.where(self.neighbours[node-1, k] == 1)[0] + 1
-                current_neighbours = torch.tensor(current_neighbours, dtype=torch.long, device=device)
 
+                current_neighbours = torch.tensor(current_neighbours, dtype=torch.long, device=device)
                 neighbour_embeddings = embeddings[current_neighbours - 1]
                 aggregated = self.agg(neighbour_embeddings)
 
                 current_embedding = embeddings[node-1]
-                concatenated = torch.cat((current_embedding, aggregated), dim=0)
 
-                updated = self.upd(concatenated)
+                current_embedding = current_embedding.unsqueeze(0)   
+                aggregated = aggregated.unsqueeze(0)                 
+
+                concatenated = torch.cat((current_embedding, aggregated), dim=1) 
+                updated = self.upd[k-1](concatenated)
+                updated = updated.squeeze(0)
+
                 updated = F.normalize(updated, dim=0)
+
+                if k < self.depth: # skip the dropout regularization for the output layer (k=self.depth)
+                    updated = F.dropout(updated, training=self.training)
 
                 new_embeddings[node-1] = updated
 
