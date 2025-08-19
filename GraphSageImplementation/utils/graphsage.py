@@ -15,28 +15,18 @@ sys.path.append(grandparent_dir)
 from utils import UnequalAttributeCounts
 
 class MeanAggregator(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-    def forward(self, neighbour_embeddings):
-        if neighbour_embeddings.size(0) == 0:
-            return torch.zeros(neighbour_embeddings.size(1), device=neighbour_embeddings.device)
-        else:
-            return torch.mean(neighbour_embeddings, dim=0)
-
-
-class Updater(nn.Module):
     def __init__(self, dim_in, dim_out):
         super().__init__()
 
         self.output_layer = nn.Linear(dim_in, dim_out, bias=False)
         self.activation = nn.ReLU()
 
-    def forward(self, concatenated):
-        new_embedding = self.output_layer(concatenated)
-        new_embedding = self.activation(new_embedding)
+    def forward(self, neighbour_embeddings):
+        agg = torch.mean(neighbour_embeddings, dim=0)
+        agg = self.output_layer(agg)
+        agg = self.activation(agg)
 
-        return new_embedding
+        return agg
 
 class GraphSage(nn.Module):
     def __init__(self, network, neighbourhood_sizes, depth=2, embed_dim=32,
@@ -53,8 +43,7 @@ class GraphSage(nn.Module):
 
         self.node_embeddings = nn.Embedding(self.num_nodes, self.embed_dim)
 
-        self.agg = MeanAggregator()
-        self.upd = nn.ModuleList([Updater(dim_in=2*self.embed_dim, dim_out=self.embed_dim)
+        self.agg = nn.ModuleList([MeanAggregator(self.embed_dim, self.embed_dim)
                                     for k in range(1, self.depth+1)])
         
         self.num_walks = num_walks
@@ -119,25 +108,21 @@ class GraphSage(nn.Module):
             for node in self.neighbourhoods[k]:
                 current_neighbours = np.where(self.neighbours[node-1, k] == 1)[0] + 1
 
-                current_neighbours = torch.tensor(current_neighbours, dtype=torch.long, device=device)
-                neighbour_embeddings = embeddings[current_neighbours - 1]
-                aggregated = self.agg(neighbour_embeddings)
+                node_and_current_neighbours = np.zeros(shape=len(current_neighbours)+1)
 
-                current_embedding = embeddings[node-1]
+                node_and_current_neighbours[0] = node
+                node_and_current_neighbours[1:] = current_neighbours
 
-                current_embedding = current_embedding.unsqueeze(0)   
-                aggregated = aggregated.unsqueeze(0)                 
+                node_and_current_neighbours = torch.tensor(node_and_current_neighbours, dtype=torch.long, device=device)
+                node_and_current_neighbour_embeddings = embeddings[node_and_current_neighbours - 1]
+                new_embedding = self.agg[k-1](node_and_current_neighbour_embeddings)
 
-                concatenated = torch.cat((current_embedding, aggregated), dim=1) 
-                updated = self.upd[k-1](concatenated)
-                updated = updated.squeeze(0)
-
-                updated = F.normalize(updated, dim=0)
+                new_embedding = F.normalize(new_embedding, dim=0)
 
                 if k < self.depth: # skip the dropout regularization for the output layer (k=self.depth)
-                    updated = F.dropout(updated, training=self.training)
+                    new_embedding = F.dropout(new_embedding, training=self.training)
 
-                new_embeddings[node-1] = updated
+                new_embeddings[node-1] = new_embedding
 
             embeddings = new_embeddings
 
