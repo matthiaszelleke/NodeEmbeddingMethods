@@ -1,6 +1,6 @@
-# Copied from: https://github.com/eliorc/node2vec
+# Adapted from: https://github.com/eliorc/LINE
 # Copyright (c) 2018 Elior Cohen
-# Licensed under the MIT License (see LICENSE or LICENSE-eliorc in this repository)
+# Licensed under the MIT License (see LICENSE in the original repository)
 # Implements the Node2Vec algorithm from:
 # Grover, A., & Leskovec, J. (2016). "node2vec: Scalable Feature Learning for Networks"
 
