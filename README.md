@@ -1,15 +1,9 @@
 ## Acknowledgements
 
-This project uses the [node2vec Python package](https://github.com/eliorc/node2vec) by Elior Cohen (MIT License), which includes an implementation of the Node2Vec algorithm. The `node2vecImplementation/n2v_train.py` file demonstrates usage of the node2vec package and is based on example scripts by Elior Cohen.
-
-The Node2Vec code in Elior's package is based on the original implementation by [Aditya Grover et al.](https://github.com/aditya-grover/node2vec), also licensed under the MIT License.
+This project uses the [node2vec Python package](https://github.com/eliorc/node2vec) by Elior Cohen (MIT License), which includes an implementation of the Node2Vec algorithm. The `node2vecImplementation/n2v_train.py` file demonstrates usage of the node2vec package and is based on example scripts by Elior Cohen. The Node2Vec code in Elior's package is based on the original implementation by [Aditya Grover et al.](https://github.com/aditya-grover/node2vec), also licensed under the MIT License.
 
 This project also includes code adapted from [Pierre Daix-Moreux’s repository](https://github.com/dmpierre/LINE),  
-licensed under the MIT License (Copyright © 2025 Pierre Daix-Moreux).  
-
-That code implements the LINE algorithm described in:
-Tang, J., Qu, M., Wang, M., Zhang, M., Yan, J., & Mei, Q. (2015).  
-LINE: Large-scale Information Network Embedding. *WWW 2015*.
+licensed under the MIT License (Copyright © 2025 Pierre Daix-Moreux). That code implements the LINE algorithm described in: Tang, J., Qu, M., Wang, M., Zhang, M., Yan, J., & Mei, Q. (2015). LINE: Large-scale Information Network Embedding. *WWW 2015*.
 
 ## License
 
